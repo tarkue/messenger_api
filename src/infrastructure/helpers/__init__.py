@@ -1,0 +1,1 @@
+from .fastapi import merge_routers

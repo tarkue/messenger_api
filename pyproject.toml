@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "messenger_api"
+version = "1.0.0"
+description = "API for pet-project with authentication and messenger"
+authors = ["tarkue <mrfrostlikchannel@gmail.com>"]
+license = "MIT"
+packages = [
+    { include = "src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pydantic = "^2.10.6"
+fastapi = "^0.115.11"
+pydantic-settings = "^2.8.1"
+email-validator = "^2.2.0"
+Jinja2 = "^3.1.6"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+start = "src.main:main"
