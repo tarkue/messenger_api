@@ -1,8 +1,9 @@
 from fastapi import APIRouter
 from uuid import UUID4
 
-from src.application.dto import message as DTO
+from src.domain.dto import message as DTO
 
+from aiogram import Bot
 
 router = APIRouter(
     prefix="/message",

@@ -1,36 +1,29 @@
 __all__ = ("find_by_credentials", "exists", "create")
 
-from typing import Dict, Literal
 from bcrypt import checkpw
-from uuid import UUID
 
-from src.infrastructure.errors.auth import UserNotFoundError
+from src.infrastructure.errors.auth import IncorrectCredentialsError
 from src.infrastructure.database import User
 
 
-async def find_by_credentials(
-    credentials: Dict[Literal['username', 'password'], str]
-) -> UUID:
-    if not await exists(credentials["username"]):
-        raise UserNotFoundError()
-    
-    check_pw = lambda password: checkpw(
-        credentials["password"].encode(), 
+async def find_by_credentials(credentials: User) -> User:
+    password_checker = lambda password: checkpw(
+        credentials.password.encode(), 
         password.encode()
     )
-    user = User.check_password(credentials, check_pw)
+    user = await User.first(username=credentials.username)
 
-    if not user:
-        raise UserNotFoundError()
+    if not user.check_password(password_checker):
+        raise IncorrectCredentialsError()
     
-    return user.id
+    return user
 
 
 async def exists(username: str) -> bool:
     return await User.exists(username)
 
 
-async def create(
-    credentials: Dict[Literal['name', 'username', 'password'], str]
-) -> None:
-    await User.create(**credentials)
+async def create(credentials: User) -> User:
+    return await User.create(**credentials.model_dump())
+
+

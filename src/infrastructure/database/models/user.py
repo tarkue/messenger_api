@@ -1,26 +1,28 @@
 from sqlmodel import Field
-from typing import Callable
-from uuid import UUID
+from sqlalchemy import ColumnExpressionArgument
+from typing import Callable, TypeVar, Type, Union, Dict, Any
 
-from ...errors.auth import UserNotFoundError
 from ..table_model import TableModel
+
+
+_T = TypeVar("_T", bound='User')
 
 
 class User(TableModel):
     __tablename__ = "user"
     
-    name: str = Field(index=True)
-    username: str = Field(index=True)
-    password: str = Field(index=True, min_length=8)
+    name: str = Field()
+    username: str = Field()
+    password: str = Field(min_length=8)
 
 
     @classmethod
     async def create(
-        cls: 'User', 
+        cls: Type[_T], 
         name: str, 
         username: str, 
         password: str
-    ) -> 'User':
+    ) -> _T:
         return await super().create(
             name=name, 
             username=username, 
@@ -28,19 +30,33 @@ class User(TableModel):
         )
     
 
+    @classmethod
+    async def update(
+        cls: Type[_T], 
+        username: str, 
+        values: Dict[Any, Any]
+    ):
+        return await super().update(
+            User.username == username, 
+            values
+        )
+
+
     @staticmethod
     async def exists(username: str) -> bool:
         return await __class__.exists(username=username)
     
     
-    @staticmethod
     async def check_password(
-        credentials: dict[str, str], 
+        self,
         password_checker: Callable[[str], bool]
-    ) -> 'User':
-        user = await __class__.first(username=credentials["username"])
+    ) -> bool:
+        return password_checker(self.password)
 
-        if user is None:
-            raise UserNotFoundError()
-        
-        return password_checker(user.password)
+    
+    @classmethod
+    async def first(
+        cls: Type[_T], 
+        **whereclauses: ColumnExpressionArgument
+    ) -> Union[_T, None]: 
+        return await super().first(cls, **whereclauses)

@@ -14,8 +14,18 @@ class AsyncDatabaseSession(AsyncSession):
 
 
     def init(self, url: str):
-        self.engine = create_async_engine(url, future=True, echo=True,pool_size=10, max_overflow=20)
-        self.session = sessionmaker(self.engine, expire_on_commit=False, class_=AsyncSession)()
+        self.engine = create_async_engine(
+            url, 
+            future=True, 
+            echo=True,
+            pool_size=10, 
+            max_overflow=20
+        )
+        self.session = sessionmaker(
+            self.engine, 
+            expire_on_commit=False, 
+            class_=AsyncSession
+        )()
 
 
     async def create_all(self):

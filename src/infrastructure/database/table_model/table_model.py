@@ -1,19 +1,22 @@
-import uuid
-from typing import TypeVar, Generic, Union, Type
-from sqlalchemy import select, ColumnExpressionArgument, ColumnClause
+from uuid import UUID, uuid4
+from typing import TypeVar, Type, Dict
+from sqlalchemy import select, update, ColumnExpressionArgument
 from sqlmodel import SQLModel, Field
 
 from ..database import db
 
 
-T = TypeVar("T", bound=ColumnClause)
+_T = TypeVar("_T", bound='TableModel')
 
 
 class TableModel(SQLModel, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True, index=True)
+    id: UUID = Field(
+        default_factory=uuid4, 
+        primary_key=True
+    )
 
     @classmethod
-    async def create(cls, **kwargs) -> T:
+    async def create(cls: Type[_T], **kwargs) -> _T:
         instance = cls(**kwargs)
         db.add(instance)
         await db.commit_rollback()
@@ -23,9 +26,9 @@ class TableModel(SQLModel, table=True):
     
     @classmethod
     async def first(
-        cls: Type[T], 
+        cls: Type[_T], 
         **whereclause: ColumnExpressionArgument
-    ) -> Union[T, None]:
+    ) -> _T:
         query = select(cls).where(**whereclause).limit(1)
         executed = (await db.execute(query)).first()
         if executed is not None:
@@ -33,10 +36,23 @@ class TableModel(SQLModel, table=True):
 
         return None
 
+    @classmethod
+    async def update(
+        cls: Type[_T], 
+        whereclauses: ColumnExpressionArgument,
+        values: Dict[str, str]
+    ) -> None:
+        stmt = (update(cls)
+                .where(**whereclauses)
+                .values(**values))
+        await db.execute(stmt)
+        await db.commit_rollback()
+    
+
 
     @classmethod
     async def exists(
-        cls: T, 
+        cls: Type[_T], 
         **whereclause: ColumnExpressionArgument
     ) -> bool:
         query = select(1).where(**whereclause).limit(1)
