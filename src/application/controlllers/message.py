@@ -1,9 +1,9 @@
-from fastapi import APIRouter
-from uuid import UUID4
+from fastapi import APIRouter, status
+from uuid import UUID
 
 from src.domain.dto import message as DTO
+from src.infrastructure.helpers import CurrentUser
 
-from aiogram import Bot
 
 router = APIRouter(
     prefix="/message",
@@ -13,6 +13,7 @@ router = APIRouter(
 
 @router.get("/")
 async def get_all_chats(
+    user: CurrentUser,
     limit: int = 10,
     offset: int = 0,
     search: str = "",
@@ -20,8 +21,8 @@ async def get_all_chats(
 
 
 @router.get("/{chat_id}")
-async def get_messages_in_chat(chat_id: UUID4): ...
+async def get_messages_in_chat(user: CurrentUser, chat_id: UUID): ...
 
 
-@router.post("/")
-def create_message(dto: DTO.CreateMessageDTO): ...
+@router.post("/", status_code=status.HTTP_201_CREATED)
+def create_message(user: CurrentUser, dto: DTO.CreateMessageDTO): ...
