@@ -1,3 +1,3 @@
-__all__ = ("User",)
+__all__ = ("User", "Message", "Chat")
 
-from .models import User
+from .models import User, Message, Chat

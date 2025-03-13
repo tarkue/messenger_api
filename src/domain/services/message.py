@@ -17,22 +17,30 @@ async def all(
     offset: int = 0, 
     search: str = ""
 ) -> List[DTO.ChatOut]:
-    return await repository.chat.all(
+    chats_out = []
+    chats = await repository.chat.all(
         user.id, 
         limit, 
         offset, 
         search
     )
+    for chat in chats:
+        chat_out = await DTO.ChatOut.from_orm(chat)
+        chats_out.append(chat_out)
+
+    return chats_out
 
 
 async def get(
     user: User,
-    chat_id: UUID
+    chat_id: UUID,
+    limit: int = 10,
+    offset: int = 0
 ) -> List[DTO.MessageOut]:
     if not await repository.chat.exists(chat_id, user.id):
         raise ChatNotFoundError()
     
-    return await repository.message.get(chat_id)
+    return await repository.message.get(chat_id, limit, offset)
 
 
 async def read(

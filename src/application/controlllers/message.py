@@ -31,9 +31,16 @@ async def get_all_chats_of_user(
 @router.get("/{chat_id}")
 async def get_messages_in_chat(
     user: CurrentUser, 
-    chat_id: UUID
+    chat_id: UUID,
+    limit: int = 10,
+    offset: int = 0
 ) -> List[DTO.MessageOut]: 
-    return await service.get(user, chat_id)
+    return await service.get(
+        user, 
+        chat_id,
+        limit,
+        offset
+    )
 
 
 @router.patch("/{message_id}/read")

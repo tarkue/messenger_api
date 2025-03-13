@@ -31,6 +31,10 @@ async def create(credentials: User) -> User:
     return await User.create(**credentials.model_dump())
 
 
+async def get(user_id: UUID) -> User:
+    return await User.first(id=user_id)
+
+
 async def all(
     limit: int = 10, 
     offset: int = 0, 

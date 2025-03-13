@@ -75,3 +75,4 @@ class TableModel(SQLModel, table=True):
         )
 
         return (await db.execute(query)).scalars().all()
+    
