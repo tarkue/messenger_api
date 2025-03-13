@@ -1,5 +1,5 @@
 from uuid import UUID, uuid4
-from typing import TypeVar, Type, Dict
+from typing import TypeVar, Type, Dict, List
 from sqlalchemy import select, update, ColumnExpressionArgument
 from sqlmodel import SQLModel, Field
 
@@ -59,3 +59,19 @@ class TableModel(SQLModel, table=True):
         executed = (await db.execute(query)).first()
 
         return executed is not None
+
+    @classmethod
+    async def find(
+        cls: Type[_T], 
+        whereclauses: ColumnExpressionArgument,
+        columns: List[ColumnExpressionArgument] = [],
+        limit: int = 10, 
+        offset: int = 0
+    ) -> List[_T]:
+        query = (select(**columns if len(columns) > 0 else cls)
+                 .limit(limit)
+                 .offset(offset)
+                 .where(whereclauses)
+        )
+
+        return (await db.execute(query)).scalars().all()

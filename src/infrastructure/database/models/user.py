@@ -1,6 +1,6 @@
 from sqlmodel import Field
-from sqlalchemy import ColumnExpressionArgument
-from typing import Callable, TypeVar, Type, Union, Dict, Any
+from sqlalchemy import ColumnExpressionArgument, func
+from typing import Callable, TypeVar, Type, Union, Dict, List, Any
 
 from ..table_model import TableModel
 
@@ -60,3 +60,18 @@ class User(TableModel):
         **whereclauses: ColumnExpressionArgument
     ) -> Union[_T, None]: 
         return await super().first(cls, **whereclauses)
+    
+
+    @classmethod
+    async def find(
+        cls: Type[_T], 
+        limit: int = 10, 
+        offset: int = 0,
+        search: str = "",
+    ) -> List[_T]:
+        return await super().find(
+            func.lower(User.name).like(search.lower), 
+            (User.id, User.name),
+            limit, 
+            offset
+        )
