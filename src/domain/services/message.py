@@ -1,4 +1,5 @@
 from uuid import UUID
+from fastapi import WebSocket
 from typing import List
 
 from src.domain.dto import message as DTO
@@ -69,9 +70,20 @@ async def send(
     if last_message.created_at > dto.created_at:
         raise InvalidTimeError()
 
-    await repository.message.create(
+    message = await repository.message.create(
         chat_id=chat.id, 
         **dto.model_dump()
     )
 
+    await repository.message.update_loop.emit(dto.to_user_id, message)
     return chat.id
+
+
+async def subscribe(user: User, websocket: WebSocket):
+    update_loop = await repository.message.update_loop.subscribe(user.id)
+    
+    async for message in update_loop:
+        await websocket.send_json(message.model_dump_json())
+
+    await repository.message.update_loop.unsubscribe(user.id)
+    

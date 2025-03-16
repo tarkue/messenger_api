@@ -1,7 +1,11 @@
 from typing import List
 from uuid import UUID
 
+from .update_loop import UpdateLoop
 from src.infrastructure.database import Message
+
+
+update_loop = UpdateLoop()
 
 
 async def get(chat_id: UUID, limit = 10, offset = 0) -> List[Message]: 

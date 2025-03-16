@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from uuid import UUID
 from typing import List
 
 from src.domain.services import user as service
@@ -22,6 +23,16 @@ async def get_all_users(
     return await service.all(limit, offset, search)
 
 
+@router.get("/{user_id}")
+async def get_info_about_user(
+    user: CurrentUser, 
+    user_id: UUID
+) -> DTO.UserOut:
+    return await service.get(user_id)
+
+
 @router.get("/me")
 async def get_info_about_me(user: CurrentUser) -> DTO.UserOut:
     return service.me(user)
+
+

@@ -47,10 +47,14 @@ async def get_messages_in_chat(
 async def mark_messages_as_read(
     user: CurrentUser, 
     message_id: UUID
-) -> List[DTO.MessageOut]: 
+) -> None: 
     return await service.read(user, message_id)
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def send_message(user: CurrentUser, dto: DTO.SendMessageDTO): 
+async def send_message(
+    user: CurrentUser, 
+    dto: DTO.SendMessageDTO
+) -> None: 
     return await service.send(user, dto)
+

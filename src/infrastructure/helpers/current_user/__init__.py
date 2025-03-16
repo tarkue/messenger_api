@@ -1,3 +1,3 @@
-__all__ = ("CurrentUser",)
+__all__ = ("CurrentUser", "CurrentUserFromWebsocket")
 
-from .user import CurrentUser
+from .user import CurrentUser, CurrentUserFromWebsocket
