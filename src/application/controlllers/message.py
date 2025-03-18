@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Body, status
 from typing import List
 from uuid import UUID
 
@@ -8,8 +8,8 @@ from src.infrastructure.helpers import CurrentUser
 
 
 router = APIRouter(
-    prefix="/message",
-    tags=["message"],
+    prefix="/messages",
+    tags=["messages"],
 )
 
 
@@ -54,7 +54,7 @@ async def mark_messages_as_read(
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def send_message(
     user: CurrentUser, 
-    dto: DTO.SendMessageDTO
+    dto: DTO.SendMessageDTO = Body(...)
 ) -> None: 
     return await service.send(user, dto)
 

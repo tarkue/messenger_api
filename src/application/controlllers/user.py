@@ -8,7 +8,7 @@ from src.infrastructure.helpers import CurrentUser
 
 
 router = APIRouter(
-    prefix="/user",
+    prefix="/users",
     tags=["user"],
 )
 
@@ -34,5 +34,3 @@ async def get_info_about_user(
 @router.get("/me")
 async def get_info_about_me(user: CurrentUser) -> DTO.UserOut:
     return service.me(user)
-
-

@@ -7,8 +7,8 @@ from src.infrastructure.helpers import CurrentUserFromWebsocket
 
 
 router = APIRouter(
-    prefix="/update",
-    tags=["update"],
+    prefix="/updates",
+    tags=["updates"],
 )
 
 

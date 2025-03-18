@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Body, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 from typing_extensions import Annotated
 
@@ -22,15 +22,15 @@ async def login(
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
-async def register(dto: DTO.RegisterDTO) -> None: 
+async def register(dto: DTO.RegisterDTO = Body(...)) -> None: 
     return await service.register(dto)
 
 
 @router.post("/restore-password")
-async def restore_password(dto: DTO.RestorePasswordDTO) -> None: 
+async def restore_password(dto: DTO.RestorePasswordDTO = Body(...)) -> None: 
     return await service.restore_password(dto)
 
 
 @router.post("/change-password")
-async def change_password(dto: DTO.ChangePasswordDTO) -> None: 
+async def change_password(dto: DTO.ChangePasswordDTO = Body(...)) -> None: 
     return await service.change_password(dto)
