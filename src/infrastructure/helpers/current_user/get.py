@@ -22,7 +22,7 @@ async def get_current_user(
     """
     try:
         token_data = decode(access_token)
-        return await User.first(User.id == token_data.id)
+        return await User.first(User.id == token_data['sub'])
     except Exception:
         raise NotValidateCredentialsError()
     

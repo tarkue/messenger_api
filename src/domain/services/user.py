@@ -22,4 +22,5 @@ async def get(user_id: UUID) -> DTO.UserOut:
 
 
 def me(user: User) -> DTO.UserOut:
+    print(user)
     return DTO.UserOut.model_validate(user)

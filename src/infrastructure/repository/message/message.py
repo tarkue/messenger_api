@@ -10,8 +10,14 @@ update_loop = UpdateLoop()
 
 async def get(chat_id: UUID, limit = 10, offset = 0) -> List[Message]: 
     return await Message.find(
-        Message.chat_id == chat_id,
-        [],
+        [Message.chat_id == chat_id],
+        [
+            Message.id,
+            Message.from_user_id, 
+            Message.is_read,
+            Message.created_at, 
+            Message.text, 
+        ],
         limit,
         offset
     )
@@ -23,8 +29,8 @@ async def last(chat_id: UUID) -> Message:
 
 async def exists(message_id: UUID, user_id: UUID) -> bool: 
     return await Message.exists(
-        id=message_id,
-        from_user_id=user_id
+        Message.id == message_id,
+        Message.from_user_id == user_id
     )
 
 

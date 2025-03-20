@@ -1,50 +1,45 @@
 from sqlmodel import Field
 from sqlalchemy import ColumnExpressionArgument, func
-from typing import Callable, TypeVar, Type, Union, Dict, List, Any
+from typing import Callable, Dict, Any
 
 from ..table_model import TableModel
 
 
-_T = TypeVar("_T", bound='User')
-
-
-class User(TableModel):
-    __tablename__ = "user"
+class User(TableModel, table=True):
+    __tablename__ = "user_table"
     
     name: str = Field()
-    username: str = Field()
+    username: str = Field(unique=True)
     password: str = Field(min_length=8)
 
 
-    @classmethod
+    @staticmethod
     async def create(
-        cls: Type[_T], 
         name: str, 
         username: str, 
         password: str
-    ) -> _T:
-        return await super().create(
+    ):
+        return await __class__._create(
             name=name, 
             username=username, 
             password=password
         )
     
 
-    @classmethod
+    @staticmethod
     async def update(
-        cls: Type[_T], 
         username: str, 
         values: Dict[Any, Any]
     ):
-        return await super().update(
+        return await __class__._update(
             User.username == username, 
             values
         )
 
 
     @staticmethod
-    async def exists(username: str) -> bool:
-        return await __class__.exists(username=username)
+    async def exists(*whereclauses: ColumnExpressionArgument):
+        return await __class__._exists(*whereclauses)
     
     
     async def check_password(
@@ -54,24 +49,26 @@ class User(TableModel):
         return password_checker(self.password)
 
     
-    @classmethod
+    @staticmethod
     async def first(
-        cls: Type[_T], 
-        **whereclauses: ColumnExpressionArgument
-    ) -> Union[_T, None]: 
-        return await super().first(cls, **whereclauses)
+        *whereclauses: ColumnExpressionArgument
+    ): 
+        return await __class__._first(*whereclauses)
     
 
-    @classmethod
+    @staticmethod
     async def find(
-        cls: Type[_T], 
         limit: int = 10, 
         offset: int = 0,
-        search: str = "",
-    ) -> List[_T]:
-        return await super().find(
-            func.lower(User.name).like(search.lower), 
+        search: str = None,
+    ):
+        filters = []
+        if search is not None and search != "":
+            filters.append(func.lower(User.name).like(f'%{search}%'.lower()))
+        return await __class__._find(
+            filters, 
             (User.id, User.name),
             limit, 
             offset
         )
+    

@@ -18,20 +18,20 @@ async def all(
 
 async def exists(chat_id: UUID, user_id: UUID) -> bool: 
     return await Chat.exists(
-        id=chat_id,
-        from_user_id=user_id,
+        Chat.id == chat_id,
+        Chat.from_user_id == user_id,
     )
 
 
 async def get(from_user_id: UUID, to_user_id: UUID) -> Chat: 
-    return await Chat.first(
-        from_user_id=from_user_id, 
-        to_user_id=to_user_id
+    return await Chat._first(
+        Chat.from_user_id==from_user_id, 
+        Chat.to_user_id == to_user_id
     )
 
 
 async def create(from_user_id: UUID, to_user_id: UUID):
-    return await Chat.create(
+    return await Chat._create(
         from_user_id=from_user_id, 
         to_user_id=to_user_id
     )

@@ -1,0 +1,19 @@
+services:  
+  postgresql:
+    env_file: .env
+    image: postgres:latest
+    environment: 
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    ports:
+      - "${DATABASE_PORT}:5432"
+  redis:
+    image: redis/redis-stack-server
+    env_file: .env
+    container_name: "redis"
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_ARGS: "--requirepass ${REDIS_PASSWORD} --user ${REDIS_USER} on >${REDIS_PASSWORD} ~* allcommands --user default off nopass nocommands"
+  

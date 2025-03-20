@@ -17,7 +17,10 @@ router = APIRouter(
 async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
 ) -> Token: 
-    dto = DTO.LoginDTO(**form_data)
+    dto = DTO.LoginDTO(
+        username=form_data.username, 
+        password=form_data.password
+    )
     return await service.login(dto)
 
 

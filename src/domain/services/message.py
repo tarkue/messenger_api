@@ -58,7 +58,7 @@ async def send(
     user: User, 
     dto: DTO.SendMessageDTO
 ) -> UUID:
-    if not await repository.user.exists(dto.to_user_id):
+    if not await repository.user.exists_by_id(dto.to_user_id):
         raise ChatNotFoundError()
     
     if not await repository.chat.exists(user.id, dto.to_user_id):
@@ -67,23 +67,32 @@ async def send(
     chat = await repository.chat.get(user.id, dto.to_user_id)
     last_message = await repository.message.last(chat.id)
 
-    if last_message.created_at > dto.created_at:
+    if last_message and last_message.created_at > dto.created_at:
         raise InvalidTimeError()
 
     message = await repository.message.create(
         chat_id=chat.id, 
-        **dto.model_dump()
+        from_user_id=user.id,
+        **dto.model_dump(exclude=["to_user_id"])
     )
 
-    await repository.message.update_loop.emit(dto.to_user_id, message)
+    await repository.message.update_loop.emit(
+        dto.to_user_id,
+        message
+    )
+
     return chat.id
 
 
 async def subscribe(user: User, websocket: WebSocket):
-    update_loop = await repository.message.update_loop.subscribe(user.id)
-    
-    async for message in update_loop:
-        await websocket.send_json(message.model_dump_json())
+    session_id = repository.message.update_loop.subscribe(user.id)
+    loop = repository.message.update_loop.loop(user.id, session_id)
+  
+    async for message in loop:
+        try:
+            await websocket.send_json(message.model_dump_json())
+        except Exception:
+            break
 
-    await repository.message.update_loop.unsubscribe(user.id)
+    repository.message.update_loop.unsubscribe(user.id, session_id)
     

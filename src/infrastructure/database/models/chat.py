@@ -1,5 +1,5 @@
 from sqlmodel import Field
-from sqlalchemy import func, select
+from sqlalchemy import ColumnExpressionArgument, func, select
 from typing import TypeVar, Type, List
 from uuid import UUID
 
@@ -9,33 +9,36 @@ from ..table_model import TableModel
 from ..database import db
 
 
-_T = TypeVar("_T", bound='Chat')
-
-
-class Chat(TableModel):
-    __tablename__ = "chat"
+class Chat(TableModel, table=True):
+    __tablename__ = "chat_table"
     
-    from_user_id: UUID = Field(foreign_key="user.id")
-    to_user_id: UUID = Field(foreign_key="user.id")
+    from_user_id: UUID = Field(foreign_key="user_table.id")
+    to_user_id: UUID = Field(foreign_key="user_table.id")
 
 
-    @classmethod
+    @staticmethod
     async def find(
-        cls: Type[_T], 
         limit: int = 10, 
         offset: int = 0,
         search: str = "",
-    ) -> List[_T]:
+    ) -> List['Chat']:
         query = (
-            select(cls)
-            .join(User, User.id == cls.from_user_id)
+            select(__class__)
+            .join(User, User.id == __class__.from_user_id)
             .limit(limit)
             .offset(offset)
-            .where(func.lower(User.name).like(search.lower))
         )
+
+        if search != "":
+            query = query.where(func.lower(User.name).like(f'%{search}%'.lower()))
 
         return (await db.execute(query)).scalars().all()
     
+
+    @staticmethod
+    async def exists(*whereclauses: ColumnExpressionArgument) -> bool:
+        return await __class__._exists(*whereclauses)
+
 
     async def last_message(self) -> Message:
         return await Message.last(self.id)

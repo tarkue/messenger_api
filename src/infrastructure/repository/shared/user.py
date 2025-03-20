@@ -15,7 +15,7 @@ from src.infrastructure.helpers import check_password
 
 
 async def find_by_credentials(credentials: User) -> User:
-    user = await User.first(username=credentials.username)
+    user = await User.first(User.username == credentials.username)
 
     if not check_password(credentials.password, user.password): 
         raise IncorrectCredentialsError()
@@ -23,16 +23,22 @@ async def find_by_credentials(credentials: User) -> User:
     return user
 
 
+async def exists_by_id(user_id: str) -> bool:
+    return await User.exists(User.id == user_id)
+
+
 async def exists(username: str) -> bool:
-    return await User.exists(username)
+    return await User.exists(User.username == username)
 
 
 async def create(credentials: User) -> User:
-    return await User.create(**credentials.model_dump())
+    return await User.create(**credentials.model_dump(
+        exclude=["confirm_password"]
+    ))
 
 
 async def get(user_id: UUID) -> User:
-    return await User.first(id=user_id)
+    return await User.first(User.id == user_id)
 
 
 async def all(

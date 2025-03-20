@@ -23,14 +23,14 @@ async def get_all_users(
     return await service.all(limit, offset, search)
 
 
+@router.get("/me")
+async def get_info_about_me(user: CurrentUser) -> DTO.UserOut:
+    return service.me(user)
+
+
 @router.get("/{user_id}")
 async def get_info_about_user(
     user: CurrentUser, 
     user_id: UUID
 ) -> DTO.UserOut:
     return await service.get(user_id)
-
-
-@router.get("/me")
-async def get_info_about_me(user: CurrentUser) -> DTO.UserOut:
-    return service.me(user)

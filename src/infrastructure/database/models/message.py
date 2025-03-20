@@ -1,64 +1,73 @@
 from sqlmodel import Field, DateTime
 from sqlalchemy import select, update, func
 from datetime import datetime
-from typing import TypeVar, Type
+from typing import Dict, Any
 from uuid import UUID
 
 from ..table_model import TableModel
 from ..database import db
 
 
-_T = TypeVar("_T", bound='Message')
-
-
-class Message(TableModel):
-    __tablename__ = "user"
+class Message(TableModel, table=True):
+    __tablename__ = "message_table"
     
-    chat_id: UUID = Field(foreign_key="chat.id")
-    from_user_id: UUID = Field(foreign_key="user.id")
+    chat_id: UUID = Field(foreign_key="chat_table.id")
+    from_user_id: UUID = Field(foreign_key="user_table.id")
     text: str
     created_at: datetime = DateTime()
     is_read: bool = Field(default=False)
     
 
-    @classmethod
-    def last(
-        cls: Type[_T], 
+    @staticmethod
+    async def last(
         chat_id: UUID
-    ) -> _T:
+    ) -> 'Message':
         query = (
-            select(cls)
-            .where(cls.chat_id == chat_id)
-            .order_by(cls.created_at.desc())
+            select(__class__)
+            .where(__class__.chat_id == chat_id)
+            .order_by(__class__.created_at.desc())
             .limit(1)
-        )
-
-        return (db.execute(query)).scalars().first()
-    
-
-    @classmethod
-    async def unread_count(
-        cls: Type[_T], 
-        chat_id: UUID
-    ) -> int:
-        query = (
-            select(func.count(cls.id))
-            .where(cls.chat_id == chat_id)
         )
 
         return (await db.execute(query)).scalars().first()
     
 
-    @classmethod
-    async def read(
-        cls: Type[_T], 
-        message_id: UUID
-    ) -> _T:
+    @staticmethod
+    async def unread_count(
+        chat_id: UUID
+    ) -> int:
         query = (
-            update(cls)
-            .where(cls.id == message_id)
+            select(func.count(__class__.id))
+            .where(__class__.chat_id == chat_id)
+        )
+
+        return (await db.execute(query)).scalars().first()
+    
+
+    @staticmethod
+    async def read(
+        message_id: UUID
+    ) -> 'Message':
+        query = (
+            update(__class__)
+            .where(__class__.id == message_id)
             .values(is_read=True)
         )
 
         await db.execute(query)
         await db.commit_rollback()
+
+    
+    @staticmethod
+    async def create(**dto: Dict[str, Any]):
+        return await __class__._create(**dto)
+
+
+    @staticmethod
+    async def find(whereclauses = ..., columns = ..., limit = 10, offset = 0):
+        return await __class__._find(whereclauses, columns, limit, offset)
+    
+
+    @staticmethod
+    async def exists(*whereclause):
+        return await __class__._exists(*whereclause)
