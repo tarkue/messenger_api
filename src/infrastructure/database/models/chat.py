@@ -18,6 +18,7 @@ class Chat(TableModel, table=True):
 
     @staticmethod
     async def find(
+        user_id: UUID, 
         limit: int = 10, 
         offset: int = 0,
         search: str = "",
@@ -25,6 +26,7 @@ class Chat(TableModel, table=True):
         query = (
             select(__class__)
             .join(User, User.id == __class__.from_user_id)
+            .where(__class__.to_user_id == user_id)
             .limit(limit)
             .offset(offset)
         )

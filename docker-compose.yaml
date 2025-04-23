@@ -16,4 +16,15 @@ services:
       - "6379:6379"
     environment:
       REDIS_ARGS: "--requirepass ${REDIS_PASSWORD} --user ${REDIS_USER} on >${REDIS_PASSWORD} ~* allcommands --user default off nopass nocommands"
-  
+  fastapi: 
+    build: .
+    env_file: .env
+    ports:
+      - "${APP_PORT}:${APP_PORT}"
+    environment:
+      DATABASE_DRIVER_NAME: "postgresql+asyncpg"
+      DATABASE_HOST: postgresql
+      REDIS_URL: "redis://${REDIS_USER}:${REDIS_PASSWORD}@redis:6379/0"
+    depends_on:
+      - postgresql
+      - redis

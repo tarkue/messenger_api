@@ -10,6 +10,7 @@ async def all(
     search: str = ""
 ) -> List[Chat]:
     return await Chat.find(
+        user_id, 
         limit=limit,
         offset=offset, 
         search=search
