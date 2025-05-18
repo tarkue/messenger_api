@@ -16,3 +16,6 @@ pydantic_settings
 asyncpg
 sqlmodel~=0.0.22
 aiosmtplib~=3.0.2
+minio
+aiohttp
+python-multipart

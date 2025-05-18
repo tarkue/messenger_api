@@ -1,7 +1,7 @@
 from sqlmodel import Field, DateTime
 from sqlalchemy import select, update, func
 from datetime import datetime
-from typing import Dict, Any
+from typing import Dict, Any, Union
 from uuid import UUID
 
 from ..table_model import TableModel
@@ -15,6 +15,7 @@ class Message(TableModel, table=True):
     from_user_id: UUID = Field(foreign_key="user_table.id")
     text: str
     created_at: datetime = DateTime()
+    attachment: Union[str, None] = Field(default=None)
     is_read: bool = Field(default=False)
     
 

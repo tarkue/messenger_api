@@ -8,5 +8,6 @@ class EnvironmentConfig:
     mail: Mail = Mail()
     database: Database = Database()
     redis: Redis = Redis()
+    minio: Minio = Minio()
 
 env = EnvironmentConfig()
