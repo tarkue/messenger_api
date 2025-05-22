@@ -13,6 +13,6 @@ router = APIRouter(
 async def upload(user: CurrentUser, file: UploadFile):
     return await service.upload_file(file)
 
-@router.get('/:filename')
+@router.get('/{filename}')
 async def get_file(user: CurrentUser, filename: str):
     return await service.get_file(filename)
