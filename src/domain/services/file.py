@@ -1,10 +1,10 @@
-from typing_extensions import Annotated
-from fastapi import File, HTTPException, UploadFile, status
-from aiohttp import ClientSession
+from fastapi.responses import StreamingResponse
+from fastapi import HTTPException, UploadFile, status
 
 from src.infrastructure.minio import (
     upload_file as upload_file_to_minio, 
-    get_file_url as get_file_url_from_minio,
+    get_file as get_file_from_minio,
+    get_content_type,
     ensure_bucket
 )
 
@@ -17,18 +17,22 @@ async def upload_file(file: UploadFile) -> str:
     try:
         await ensure_bucket()
         return await upload_file_to_minio(file)
-    except Exception:
+    except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, 
             detail={"error": "Failed to upload file to storage"}
         )
     
-async def get_file(object_name: str) ->  Annotated[bytes, File()]:
+async def get_file(object_name: str) ->  StreamingResponse:
     try: 
-        file_url = get_file_url_from_minio(object_name)
-        response = await ClientSession().get(file_url)
-        return response.content
-    except Exception:
+        return StreamingResponse(
+            get_file_from_minio(object_name),
+            media_type=get_content_type(object_name)
+        )
+
+    except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, 
             detail={"error": "Failed to get file url from storage"}
