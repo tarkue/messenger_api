@@ -42,12 +42,14 @@ async def get(user_id: UUID) -> User:
 
 
 async def all(
+    current_user_id: UUID,
     limit: int = 10, 
     offset: int = 0, 
     search: str = ""
 ) -> List[User]:
     return await User.find(
-        limit=limit,
-        offset=offset, 
-        search=search
+        limit,
+        offset, 
+        search,
+        User.id != current_user_id
     )

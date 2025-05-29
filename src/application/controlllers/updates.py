@@ -1,10 +1,10 @@
-from fastapi import APIRouter, WebSocket
 from typing import List
+
+from fastapi import APIRouter, WebSocket
 
 from src.domain.dto import message as DTO
 from src.domain.services import message as service
 from src.infrastructure.helpers import CurrentUserFromWebsocket
-
 
 router = APIRouter(
     prefix="/updates",
@@ -12,9 +12,9 @@ router = APIRouter(
 )
 
 
-@router.websocket("/")
+@router.websocket("")
 async def update(
+    websocket: WebSocket,
     user: CurrentUserFromWebsocket, 
-    websocket: WebSocket
-) -> List[DTO.MessageOut]:
+) -> None:
     await service.subscribe(user, websocket)

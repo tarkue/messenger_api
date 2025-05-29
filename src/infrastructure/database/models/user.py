@@ -1,6 +1,7 @@
-from sqlmodel import Field
+from typing import Any, Callable, Dict, List
+
 from sqlalchemy import ColumnExpressionArgument, func
-from typing import Callable, Dict, Any
+from sqlmodel import Field
 
 from ..table_model import TableModel
 
@@ -61,8 +62,9 @@ class User(TableModel, table=True):
         limit: int = 10, 
         offset: int = 0,
         search: str = None,
+        *whereclauses: ColumnExpressionArgument,
     ):
-        filters = []
+        filters = [*whereclauses]
         if search is not None and search != "":
             filters.append(func.lower(User.name).like(f'%{search}%'.lower()))
         return await __class__._find(

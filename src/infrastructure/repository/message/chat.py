@@ -1,6 +1,8 @@
 from typing import List
 from uuid import UUID
 
+from sqlalchemy import and_, or_
+
 from src.infrastructure.database import Chat
 
 
@@ -24,11 +26,24 @@ async def exists(chatId: UUID, user_id: UUID) -> bool:
         Chat.fromUserId == user_id,
     )
 
+async def exists_by_user(from_user_id: UUID, to_user_id: UUID) -> bool: 
+    return await Chat.exists(
+        or_(
+            and_(Chat.fromUserId == from_user_id,
+                 Chat.toUserId == to_user_id),
+            and_(Chat.fromUserId == to_user_id,
+                 Chat.toUserId == from_user_id)
+        )
+    )
 
-async def get(fromUserId: UUID, toUserId: UUID) -> Chat: 
+async def get(chatId: UUID) -> Chat:
+    return await Chat._first(Chat.id == chatId)
+
+
+async def get_by_user(fromUserId: UUID, toUserId: UUID) -> Chat: 
     return await Chat._first(
-        Chat.fromUserId==fromUserId, 
-        Chat.toUserId == toUserId
+        or_(Chat.fromUserId == fromUserId, 
+            Chat.fromUserId == toUserId)
     )
 
 

@@ -20,7 +20,7 @@ async def get_all_users(
     offset: int = 0,
     search: str = ""
 ) -> List[DTO.UserOut]:
-    return await service.all(limit, offset, search)
+    return await service.all(user, limit, offset, search)
 
 
 @router.get("/me")

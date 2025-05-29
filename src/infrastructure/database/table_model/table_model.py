@@ -1,10 +1,10 @@
+from typing import Dict, List, Type, TypeVar
 from uuid import UUID, uuid4
-from typing import TypeVar, Type, Dict, List
-from sqlalchemy import select, update, ColumnExpressionArgument
-from sqlmodel import SQLModel, Field
+
+from sqlalchemy import ColumnExpressionArgument, select, update
+from sqlmodel import Field, SQLModel
 
 from ..database import db
-
 
 _T = TypeVar("_T", bound='TableModel')
 
@@ -66,11 +66,13 @@ class TableModel(SQLModel):
         whereclauses: ColumnExpressionArgument = [],
         columns: List[ColumnExpressionArgument] = [],
         limit: int = 10, 
-        offset: int = 0
+        offset: int = 0,
+        order_by: List[ColumnExpressionArgument] = []
     ) -> List[_T]:
         query = (select(*columns if len(columns) > 0 else cls)
                  .limit(limit)
                  .offset(offset)
+                 .order_by(*order_by)
         )
 
         if len(whereclauses) > 0:

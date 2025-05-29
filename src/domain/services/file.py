@@ -1,12 +1,9 @@
-from fastapi.responses import StreamingResponse
 from fastapi import HTTPException, UploadFile, status
+from fastapi.responses import StreamingResponse
 
-from src.infrastructure.minio import (
-    upload_file as upload_file_to_minio, 
-    get_file as get_file_from_minio,
-    get_content_type,
-    ensure_bucket
-)
+from src.infrastructure.minio import ensure_bucket, get_content_type
+from src.infrastructure.minio import get_file as get_file_from_minio
+from src.infrastructure.minio import upload_file as upload_file_to_minio
 
 
 async def upload_file(file: UploadFile) -> str:
@@ -17,8 +14,7 @@ async def upload_file(file: UploadFile) -> str:
     try:
         await ensure_bucket()
         return await upload_file_to_minio(file)
-    except Exception as e:
-        print(e)
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, 
             detail={"error": "Failed to upload file to storage"}
@@ -31,8 +27,7 @@ async def get_file(object_name: str) ->  StreamingResponse:
             media_type=get_content_type(object_name)
         )
 
-    except Exception as e:
-        print(e)
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, 
             detail={"error": "Failed to get file url from storage"}

@@ -3,10 +3,10 @@ __all__ = ("app",)
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .controlllers import routers
 from src.infrastructure.config import env
-from src.infrastructure.helpers import merge_routers, lifespan
+from src.infrastructure.helpers import lifespan, merge_routers
 
+from .controlllers import routers
 
 app = FastAPI(
     title=env.app.title,
@@ -16,7 +16,7 @@ app = FastAPI(
 )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:4200"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

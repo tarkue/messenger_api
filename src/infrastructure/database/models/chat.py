@@ -1,7 +1,7 @@
 from typing import List, Type, TypeVar
 from uuid import UUID
 
-from sqlalchemy import ColumnExpressionArgument, func, select
+from sqlalchemy import ColumnExpressionArgument, func, or_, select
 from sqlmodel import Field
 
 from ..database import db
@@ -26,10 +26,11 @@ class Chat(TableModel, table=True):
     ) -> List['Chat']:
         query = (
             select(__class__)
-            .join(User, User.id == __class__.fromUserId)
-            .where(__class__.toUserId == user_id)
+            .join(User, or_(User.id == __class__.fromUserId, User.id == __class__.toUserId))
+            .where(or_(__class__.toUserId == user_id, __class__.fromUserId == user_id))
             .limit(limit)
             .offset(offset)
+            .distinct()
         )
 
         if search != "":
@@ -47,5 +48,5 @@ class Chat(TableModel, table=True):
         return await Message.last(self.id)
     
 
-    async def unread_count(self) -> int:
-        return await Message.unread_count(self.id)
+    async def unread_count(self, user_id: UUID) -> int:
+        return await Message.unread_count(self.id, user_id)

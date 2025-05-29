@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, Union
 from uuid import UUID
 
-from sqlalchemy import func, select, update
+from sqlalchemy import desc, func, select, update
 from sqlmodel import DateTime, Field
 
 from ..database import db
@@ -36,11 +36,12 @@ class Message(TableModel, table=True):
 
     @staticmethod
     async def unread_count(
-        chatId: UUID
+        chatId: UUID,
+        user_id: UUID
     ) -> int:
         query = (
             select(func.count(__class__.id))
-            .where(__class__.chatId == chatId)
+            .where(__class__.chatId == chatId, __class__.fromUserId != user_id, __class__.isRead == False)
         )
 
         return (await db.execute(query)).scalars().first()
@@ -67,7 +68,7 @@ class Message(TableModel, table=True):
 
     @staticmethod
     async def find(whereclauses = ..., columns = ..., limit = 10, offset = 0):
-        return await __class__._find(whereclauses, columns, limit, offset)
+        return await __class__._find(whereclauses, columns, limit, offset, [__class__.createdAt.desc()])
     
 
     @staticmethod
