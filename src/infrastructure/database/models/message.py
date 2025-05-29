@@ -1,32 +1,33 @@
-from sqlmodel import Field, DateTime
-from sqlalchemy import select, update, func
 from datetime import datetime
-from typing import Dict, Any, Union
+from typing import Any, Dict, Union
 from uuid import UUID
 
-from ..table_model import TableModel
+from sqlalchemy import func, select, update
+from sqlmodel import DateTime, Field
+
 from ..database import db
+from ..table_model import TableModel
 
 
 class Message(TableModel, table=True):
     __tablename__ = "message_table"
     
-    chat_id: UUID = Field(foreign_key="chat_table.id")
-    from_user_id: UUID = Field(foreign_key="user_table.id")
+    chatId: UUID = Field(foreign_key="chat_table.id")
+    fromUserId: UUID = Field(foreign_key="user_table.id")
     text: str
-    created_at: datetime = DateTime()
+    createdAt: datetime = DateTime()
     attachment: Union[str, None] = Field(default=None)
-    is_read: bool = Field(default=False)
+    isRead: bool = Field(default=False)
     
 
     @staticmethod
     async def last(
-        chat_id: UUID
+        chatId: UUID
     ) -> 'Message':
         query = (
             select(__class__)
-            .where(__class__.chat_id == chat_id)
-            .order_by(__class__.created_at.desc())
+            .where(__class__.chatId == chatId)
+            .order_by(__class__.createdAt.desc())
             .limit(1)
         )
 
@@ -35,11 +36,11 @@ class Message(TableModel, table=True):
 
     @staticmethod
     async def unread_count(
-        chat_id: UUID
+        chatId: UUID
     ) -> int:
         query = (
             select(func.count(__class__.id))
-            .where(__class__.chat_id == chat_id)
+            .where(__class__.chatId == chatId)
         )
 
         return (await db.execute(query)).scalars().first()
@@ -52,7 +53,7 @@ class Message(TableModel, table=True):
         query = (
             update(__class__)
             .where(__class__.id == message_id)
-            .values(is_read=True)
+            .values(isRead=True)
         )
 
         await db.execute(query)

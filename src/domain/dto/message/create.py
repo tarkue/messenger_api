@@ -1,10 +1,11 @@
 from typing import Optional
-from pydantic import UUID4, PastDatetime, BaseModel, Field
+
+from pydantic import UUID4, BaseModel, Field, PastDatetime
 
 
 class SendMessageDTO(BaseModel):
     to_user_id: UUID4
     text: str = Field(examples=["Hello, world!"])
-    created_at: PastDatetime
+    createdAt: PastDatetime
     attachment: Optional[str] = None
     

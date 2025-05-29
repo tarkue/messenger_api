@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Body, status
 from typing import List
 from uuid import UUID
+
+from fastapi import APIRouter, Body, status
 
 from src.domain.dto import message as DTO
 from src.domain.services import message as service
 from src.infrastructure.helpers import CurrentUser
-
 
 router = APIRouter(
     prefix="/messages",
@@ -28,16 +28,16 @@ async def get_all_chats_of_user(
     )
 
 
-@router.get("/{chat_id}")
+@router.get("/{chatId}")
 async def get_messages_in_chat(
     user: CurrentUser, 
-    chat_id: UUID,
+    chatId: UUID,
     limit: int = 10,
     offset: int = 0
 ) -> List[DTO.MessageOut]: 
     return await service.get(
         user, 
-        chat_id,
+        chatId,
         limit,
         offset
     )

@@ -3,6 +3,7 @@ from uuid import UUID
 
 from src.infrastructure.database import Chat
 
+
 async def all(
     user_id: UUID, 
     limit: int = 10, 
@@ -17,22 +18,22 @@ async def all(
     )
 
 
-async def exists(chat_id: UUID, user_id: UUID) -> bool: 
+async def exists(chatId: UUID, user_id: UUID) -> bool: 
     return await Chat.exists(
-        Chat.id == chat_id,
-        Chat.from_user_id == user_id,
+        Chat.id == chatId,
+        Chat.fromUserId == user_id,
     )
 
 
-async def get(from_user_id: UUID, to_user_id: UUID) -> Chat: 
+async def get(fromUserId: UUID, toUserId: UUID) -> Chat: 
     return await Chat._first(
-        Chat.from_user_id==from_user_id, 
-        Chat.to_user_id == to_user_id
+        Chat.fromUserId==fromUserId, 
+        Chat.toUserId == toUserId
     )
 
 
-async def create(from_user_id: UUID, to_user_id: UUID):
+async def create(fromUserId: UUID, toUserId: UUID):
     return await Chat._create(
-        from_user_id=from_user_id, 
-        to_user_id=to_user_id
+        fromUserId=fromUserId, 
+        toUserId=toUserId
     )

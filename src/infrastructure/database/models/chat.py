@@ -1,19 +1,20 @@
-from sqlmodel import Field
-from sqlalchemy import ColumnExpressionArgument, func, select
-from typing import TypeVar, Type, List
+from typing import List, Type, TypeVar
 from uuid import UUID
 
-from .user import User
-from .message import Message
-from ..table_model import TableModel
+from sqlalchemy import ColumnExpressionArgument, func, select
+from sqlmodel import Field
+
 from ..database import db
+from ..table_model import TableModel
+from .message import Message
+from .user import User
 
 
 class Chat(TableModel, table=True):
     __tablename__ = "chat_table"
     
-    from_user_id: UUID = Field(foreign_key="user_table.id")
-    to_user_id: UUID = Field(foreign_key="user_table.id")
+    fromUserId: UUID = Field(foreign_key="user_table.id")
+    toUserId: UUID = Field(foreign_key="user_table.id")
 
 
     @staticmethod
@@ -25,8 +26,8 @@ class Chat(TableModel, table=True):
     ) -> List['Chat']:
         query = (
             select(__class__)
-            .join(User, User.id == __class__.from_user_id)
-            .where(__class__.to_user_id == user_id)
+            .join(User, User.id == __class__.fromUserId)
+            .where(__class__.toUserId == user_id)
             .limit(limit)
             .offset(offset)
         )

@@ -1,15 +1,14 @@
-from uuid import UUID
-from fastapi import WebSocket
 from typing import List
+from uuid import UUID
+
+from fastapi import WebSocket
 
 from src.domain.dto import message as DTO
-from src.infrastructure.repository import message as repository
 from src.infrastructure.database import User
-from src.infrastructure.errors.message import (
-    ChatNotFoundError, 
-    MessageNotFoundError,
-    InvalidTimeError
-)
+from src.infrastructure.errors.message import (ChatNotFoundError,
+                                               InvalidTimeError,
+                                               MessageNotFoundError)
+from src.infrastructure.repository import message as repository
 
 
 async def all(
@@ -34,14 +33,14 @@ async def all(
 
 async def get(
     user: User,
-    chat_id: UUID,
+    chatId: UUID,
     limit: int = 10,
     offset: int = 0
 ) -> List[DTO.MessageOut]:
-    if not await repository.chat.exists(chat_id, user.id):
+    if not await repository.chat.exists(chatId, user.id):
         raise ChatNotFoundError()
     
-    return await repository.message.get(chat_id, limit, offset)
+    return await repository.message.get(chatId, limit, offset)
 
 
 async def read(
@@ -67,12 +66,12 @@ async def send(
     chat = await repository.chat.get(user.id, dto.to_user_id)
     last_message = await repository.message.last(chat.id)
 
-    if last_message and last_message.created_at > dto.created_at:
+    if last_message and last_message.createdAt > dto.createdAt:
         raise InvalidTimeError()
 
     message = await repository.message.create(
-        chat_id=chat.id, 
-        from_user_id=user.id,
+        chatId=chat.id, 
+        fromUserId=user.id,
         **dto.model_dump(exclude=["to_user_id"])
     )
 

@@ -1,21 +1,21 @@
 from typing import List
 from uuid import UUID
 
-from .update_loop import UpdateLoop
 from src.infrastructure.database import Message
 
+from .update_loop import UpdateLoop
 
 update_loop = UpdateLoop()
 
 
-async def get(chat_id: UUID, limit = 10, offset = 0) -> List[Message]: 
+async def get(chatId: UUID, limit = 10, offset = 0) -> List[Message]: 
     return await Message.find(
-        [Message.chat_id == chat_id],
+        [Message.chatId == chatId],
         [
             Message.id,
-            Message.from_user_id, 
-            Message.is_read,
-            Message.created_at, 
+            Message.fromUserId, 
+            Message.isRead,
+            Message.createdAt, 
             Message.text, 
         ],
         limit,
@@ -23,14 +23,14 @@ async def get(chat_id: UUID, limit = 10, offset = 0) -> List[Message]:
     )
 
 
-async def last(chat_id: UUID) -> Message: 
-    return await Message.last(chat_id)
+async def last(chatId: UUID) -> Message: 
+    return await Message.last(chatId)
 
 
 async def exists(message_id: UUID, user_id: UUID) -> bool: 
     return await Message.exists(
         Message.id == message_id,
-        Message.from_user_id == user_id
+        Message.fromUserId == user_id
     )
 
 
