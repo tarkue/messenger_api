@@ -9,8 +9,8 @@ __all__ = (
 from typing import List
 from uuid import UUID
 
-from src.infrastructure.errors.auth import IncorrectCredentialsError
 from src.infrastructure.database import User
+from src.infrastructure.errors.auth import IncorrectCredentialsError
 from src.infrastructure.helpers import check_password
 
 
@@ -33,7 +33,7 @@ async def exists(username: str) -> bool:
 
 async def create(credentials: User) -> User:
     return await User.create(**credentials.model_dump(
-        exclude=["confirm_password"]
+        exclude=["confirmPassword"]
     ))
 
 
