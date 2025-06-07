@@ -40,10 +40,14 @@ async def get(chatId: UUID) -> Chat:
     return await Chat._first(Chat.id == chatId)
 
 
-async def get_by_user(fromUserId: UUID, toUserId: UUID) -> Chat: 
+async def get_by_user(from_user_id: UUID, to_user_id: UUID) -> Chat: 
     return await Chat._first(
-        or_(Chat.fromUserId == fromUserId, 
-            Chat.fromUserId == toUserId)
+        or_(
+            and_(Chat.fromUserId == from_user_id,
+                 Chat.toUserId == to_user_id),
+            and_(Chat.fromUserId == to_user_id,
+                 Chat.toUserId == from_user_id)
+        )
     )
 
 

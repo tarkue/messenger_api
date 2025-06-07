@@ -1,7 +1,7 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Body, status
+from fastapi import APIRouter, BackgroundTasks, Body, status
 
 from src.domain.dto import message as DTO
 from src.domain.services import message as service
@@ -46,9 +46,10 @@ async def get_messages_in_chat(
 @router.patch("/{message_id}/read")
 async def mark_messages_as_read(
     user: CurrentUser, 
-    message_id: UUID
+    message_id: UUID,
+    background_tasks: BackgroundTasks
 ) -> None: 
-    return await service.read(user, message_id)
+    return await service.read(user, message_id, background_tasks)
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)

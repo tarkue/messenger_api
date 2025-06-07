@@ -1,5 +1,4 @@
-import asyncio
-
+from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel
@@ -18,11 +17,9 @@ class AsyncDatabaseSession(AsyncSession):
     def init(self, url: str):
         self.engine = create_async_engine(
             url, 
-            echo=True,
-            pool_size=20, 
-            max_overflow=20,
-            pool_recycle=3600,
-            pool_pre_ping=True,
+            echo=False,
+            future=True,
+            poolclass=NullPool
         )
         self.session = sessionmaker(
             self.engine, 

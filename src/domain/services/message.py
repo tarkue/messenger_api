@@ -1,7 +1,7 @@
 from typing import List
 from uuid import UUID
 
-from fastapi import WebSocket
+from fastapi import BackgroundTasks, WebSocket
 from fastapi.encoders import jsonable_encoder
 
 from src.domain.dto import message as DTO
@@ -61,7 +61,8 @@ async def get(
 
 async def read(
     user: User,
-    message_id: UUID
+    message_id: UUID,
+    background_tasks: BackgroundTasks
 ) -> None:
     if not await repository.message.exists(message_id):
         raise MessageNotFoundError()
@@ -72,7 +73,10 @@ async def read(
     if chat.fromUserId != user.id and chat.toUserId != user.id:
         raise MessageNotFoundError()
     
-    await repository.message.read(message_id)
+    background_tasks.add_task(
+        repository.message.read,
+        message_id
+    )
 
 
 async def send(
